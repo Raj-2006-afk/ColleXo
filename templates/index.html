@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Welcome to {{ app_name }}</h1>
+        <p class="hero-subtitle">Discover amazing student societies and clubs at {{ college_name }}</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('students.browse_societies') }}" class="btn btn-lg" style="background: white; color: #667eea;">Browse Societies</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-lg btn-outline-primary" style="border-color: white; color: white;">Register Your Society</a>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<div class="container">
+    <h2 class="text-center mb-4">Explore by Category</h2>
+    
+    <div class="row">
+        {% for cat_value, cat_data in category_counts.items() %}
+        <div class="col-4">
+            <a href="{{ url_for('students.browse_societies', category=cat_value) }}" style="text-decoration: none;">
+                <div class="card" style="text-align: center;">
+                    <div class="card-body">
+                        <h3>{{ cat_data.name }}</h3>
+                        <p class="text-muted">{{ cat_data.count }} societies</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Featured Societies Section -->
+<div class="container" style="margin-top: 3rem;">
+    <h2 class="text-center mb-4">Featured Societies</h2>
+    
+    {% if featured_societies %}
+    <div class="society-grid">
+        {% for society in featured_societies %}
+        <div class="society-card">
+            <img src="{{ logo_url }}" 
+     alt="{{ society.name }}" 
+     class="society-card-img"
+     onerror="this.src='{{ placeholder }}'">
+            
+            <div class="society-card-body">
+                <span class="society-card-category">{{ society.category|replace('_', ' ')|title }}</span>
+                <h3 class="society-card-title">{{ society.name }}</h3>
+                <p class="society-card-desc">{{ society.short_desc|truncate(120) }}</p>
+                
+                <div class="society-card-stats">
+                    <span class="stat-item">
+                        👥 {{ society.members_count }} members
+                    </span>
+                    <span class="stat-item">
+                        👁️ {{ society.views_count }} views
+                    </span>
+                </div>
+                
+                <a href="{{ url_for('students.society_profile', slug=society.slug) }}" 
+                   class="btn btn-primary btn-block" style="margin-top: 1rem;">View Profile</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No societies available yet. Be the first to register!</p>
+    {% endif %}
+    
+    <div class="text-center" style="margin-top: 2rem;">
+        <a href="{{ url_for('students.browse_societies') }}" class="btn btn-lg btn-outline-primary">View All Societies</a>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="container" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-value">{{ category_counts.values()|map(attribute='count')|sum }}</div>
+            <div class="stat-card-label">Active Societies</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+            <div class="stat-card-value">{{ categories|length }}</div>
+            <div class="stat-card-label">Categories</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+            <div class="stat-card-value">1000+</div>
+            <div class="stat-card-label">Students Connected</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

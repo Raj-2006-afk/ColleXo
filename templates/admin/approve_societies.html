@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Approvals{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav>
+        <ul class="breadcrumb">
+            {% for crumb in breadcrumbs %}
+            <li class="breadcrumb-item {% if crumb.active %}active{% endif %}">
+                {% if crumb.url %}
+                    <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+                {% else %}
+                    {{ crumb.title }}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    
+    <h1 class="mb-4">Pending Society Approvals</h1>
+    
+    {% if societies.items %}
+    <div class="society-grid">
+        {% for society in societies.items %}
+        <div class="card">
+            <img src="{{ url_for('static', filename='uploads/' + society.logo_path) }}" 
+     alt="{{ society.name }}" 
+     class="society-card-img"
+     onerror="this.src=PLACEHOLDER_LOGO">
+
+            
+            <div class="card-body">
+                <span class="badge badge-secondary" style="margin-bottom: 0.5rem;">{{ society.category|title }}</span>
+                <h3 class="card-title">{{ society.name }}</h3>
+                <p class="card-text">{{ society.short_desc|truncate(100) }}</p>
+                
+                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
+                    <div><strong>Contact:</strong> {{ society.contact_email }}</div>
+                    <div><strong>Registered:</strong> {{ society.created_at.strftime('%B %d, %Y') }}</div>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <form method="POST" action="{{ url_for('admin.approve_society', society_id=society.id) }}" style="flex: 1;">
+                        <button type="submit" class="btn btn-success btn-block">Approve</button>
+                    </form>
+                    <form method="POST" 
+                          action="{{ url_for('admin.reject_society', society_id=society.id) }}" 
+                          onsubmit="return confirm('Are you sure you want to reject this society?')"
+                          style="flex: 1;">
+                        <button type="submit" class="btn btn-danger btn-block">Reject</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if societies.pages > 1 %}
+    <nav>
+        <ul class="pagination">
+            {% if societies.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin.pending_societies', page=societies.prev_num) }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for page_num in societies.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == societies.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.pending_societies', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if societies.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin.pending_societies', page=societies.next_num) }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center" style="padding: 3rem 0;">
+        <h3>No Pending Approvals</h3>
+        <p class="text-muted">All societies have been reviewed</p>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+# ColleXo - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Flask Framework
+Flask
+Werkzeug
+
+# Database
+Flask-SQLAlchemy
+SQLAlchemy
+PyMySQL
+
+# Password Hashing
+Flask-Bcrypt
+bcrypt
+
+# Environment Variables
+python-dotenv
+
+# Image Processing (for logo uploads and placeholder creation)
+Pillow
+
+# Date/Time Utilities
+python-dateutil
+
+# Form Validation (optional but recommended)
+WTForms
+Flask-WTF
+
+# Email Support (optional - for notifications)
+Flask-Mail
+
+# JSON Web Tokens (optional - for API authentication)
+PyJWT
+
+# Pagination Helper
+Flask-Paginate

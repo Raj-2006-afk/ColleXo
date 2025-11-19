@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ college_name }} - Discover and join student societies">
+    <title>{% block title %}{{ app_name }}{% endblock %} - {{ college_name }}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- ADD THIS SCRIPT HERE -->
+    <script>
+        // Global placeholder logo variable
+        const PLACEHOLDER_LOGO = "{{ url_for('static', filename='images/placeholder-logo.png') }}";
+    </script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+    {% for cat_value, cat_name in categories.items() %}
+      <a href="{{ url_for('students.browse_societies', category=cat_value) }}">{{ cat_name }}</a>
+    {% endfor %}
+</nav>
+
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container" style="margin-top: 1.5rem;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>{{ app_name }}</h4>
+                    <p>Connecting students with societies at {{ college_name }}</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="{{ url_for('index') }}" class="footer-link">Home</a>
+                    <a href="{{ url_for('students.browse_societies') }}" class="footer-link">Browse Societies</a>
+                    <a href="{{ url_for('auth.register') }}" class="footer-link">Register Society</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#" class="footer-link">Help Center</a>
+                    <a href="#" class="footer-link">Contact Us</a>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Categories</h4>
+                    {% for cat_value, cat_name in categories %}
+                        <a href="{{ url_for('students.browse_societies', category=cat_value) }}" class="footer-link">{{ cat_name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 {{ app_name }} - {{ college_name }}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

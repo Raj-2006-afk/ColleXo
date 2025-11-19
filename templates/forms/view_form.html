@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav>
+        <ul class="breadcrumb">
+            {% for crumb in breadcrumbs %}
+            <li class="breadcrumb-item {% if crumb.active %}active{% endif %}">
+                {% if crumb.url %}
+                    <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+                {% else %}
+                    {{ crumb.title }}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    
+    <div class="row">
+        <div class="col-8" style="margin: 0 auto;">
+            <div class="card">
+                <div class="card-body" style="padding: 2rem;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <img src="{{ url_for('static', filename='uploads/' + society.logo_path) }}" 
+     alt="{{ society.name }}" 
+     class="society-card-img"
+     onerror="this.src=PLACEHOLDER_LOGO">
+
+                        <h1>{{ form.title }}</h1>
+                        <p class="text-muted">{{ society.name }}</p>
+                    </div>
+                    
+                    {% if form.description %}
+                    <div class="alert alert-info">
+                        {{ form.description }}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ url_for('students.submit_form', form_id=form.id) }}" enctype="multipart/form-data">
+                        <h4 class="mb-3">Your Information</h4>
+                        
+                        <div class="form-group">
+                            <label for="submitter_name" class="form-label required">Full Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="submitter_name" 
+                                   name="submitter_name" 
+                                   required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="submitter_email" class="form-label required">Email Address</label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="submitter_email" 
+                                           name="submitter_email" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="submitter_phone" class="form-label">Phone Number</label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="submitter_phone" 
+                                           name="submitter_phone" 
+                                           placeholder="1234567890">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr style="margin: 2rem 0;">
+                        
+                        <h4 class="mb-3">Form Fields</h4>
+                        
+                        {% for field in form.get_schema() %}
+                        <div class="form-group">
+                            <label for="field_{{ loop.index }}" class="form-label {% if field.required %}required{% endif %}">
+                                {{ field.label }}
+                            </label>
+                            
+                            {% if field.type == 'text' or field.type == 'email' or field.type == 'phone' %}
+                                <input type="{{ field.type }}" 
+                                       class="form-control" 
+                                       id="field_{{ loop.index }}" 
+                                       name="{{ field.name }}"
+                                       placeholder="{{ field.placeholder or '' }}"
+                                       {% if field.required %}required{% endif %}>
+                            
+                            {% elif field.type == 'textarea' %}
+                                <textarea class="form-control" 
+                                          id="field_{{ loop.index }}" 
+                                          name="{{ field.name }}"
+                                          rows="4"
+                                          placeholder="{{ field.placeholder or '' }}"
+                                          {% if field.required %}required{% endif %}></textarea>
+                            
+                            {% elif field.type == 'select' %}
+                                <select class="form-control" 
+                                        id="field_{{ loop.index }}" 
+                                        name="{{ field.name }}"
+                                        {% if field.required %}required{% endif %}>
+                                    <option value="">Select an option</option>
+                                    {% for option in field.options %}
+                                        <option value="{{ option }}">{{ option }}</option>
+                                    {% endfor %}
+                                </select>
+                            
+                            {% elif field.type == 'radio' %}
+                                {% for option in field.options %}
+                                <div class="form-check">
+                                    <input type="radio" 
+                                           class="form-check-input" 
+                                           id="field_{{ loop.index }}_{{ loop.index0 }}" 
+                                           name="{{ field.name }}"
+                                           value="{{ option }}"
+                                           {% if field.required %}required{% endif %}>
+                                    <label class="form-check-label" for="field_{{ loop.index }}_{{ loop.index0 }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            
+                            {% elif field.type == 'checkbox' %}
+                                {% for option in field.options %}
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="field_{{ loop.index }}_{{ loop.index0 }}" 
+                                           name="{{ field.name }}"
+                                           value="{{ option }}">
+                                    <label class="form-check-label" for="field_{{ loop.index }}_{{ loop.index0 }}">
+                                        {{ option }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            
+                            {% elif field.type == 'file' %}
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="field_{{ loop.index }}" 
+                                       name="{{ field.name }}"
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                       {% if field.required %}required{% endif %}>
+                                <small class="form-text">Max 16MB. Allowed: PDF, DOC, DOCX, JPG, PNG</small>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                            <small class="form-text">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Honeypot (anti-bot) -->
+                        <input type="text" name="website" style="display: none;" tabindex="-1" autocomplete="off">
+                        
+                        <div class="form-check" style="margin: 1.5rem 0;">
+                            <input type="checkbox" class="form-check-input" id="consent" required>
+                            <label class="form-check-label" for="consent">
+                                I agree to share my information with {{ society.name }} and understand that it will be used for society-related purposes only.
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Submit Application</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
