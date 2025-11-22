@@ -2,6 +2,12 @@
 
 A production-grade web application for managing college societies, streamlining recruitment processes, and connecting students with opportunities.
 
+## 👥 Team Members
+
+- **Prachetas Shukla** (2024UCM2345)
+- **Ranbir Singh** (2024UCM2308)
+- **Supreet Singh** (2024UCM2333)
+
 ## 📋 Table of Contents
 
 - [Features](#features)
@@ -19,11 +25,13 @@ A production-grade web application for managing college societies, streamlining 
 ## ✨ Features
 
 ### For Students
+
 - Browse and explore various college societies
 - Submit applications through easy-to-use forms
 - Track application status in real-time
 
 ### For Society Heads
+
 - Manage society profile and information
 - Create and publish recruitment forms
 - Review and filter incoming applications
@@ -31,6 +39,7 @@ A production-grade web application for managing college societies, streamlining 
 - Create new societies
 
 ### For Administrators
+
 - Oversee all societies and activities
 - Monitor platform usage and statistics
 - Manage user accounts
@@ -111,6 +120,7 @@ python app.py
 ```
 
 **Expected Output:**
+
 ```
 ============================================================
 🚀 ColleXo Backend Starting...
@@ -138,6 +148,7 @@ npm run dev
 ```
 
 **Expected Output:**
+
 ```
   VITE v5.0.8  ready in 324 ms
 
@@ -157,11 +168,11 @@ http://localhost:5173
 
 ## 🔑 Demo Credentials
 
-| Role             | Email                  | Password   |
-| ---------------- | ---------------------- | ---------- |
-| **Student**      | student@collexo.com    | student123 |
-| **Society Head** | john@collexo.com       | head123    |
-| **Admin**        | admin@collexo.com      | admin123   |
+| Role             | Email               | Password   |
+| ---------------- | ------------------- | ---------- |
+| **Student**      | student@collexo.com | student123 |
+| **Society Head** | john@collexo.com    | head123    |
+| **Admin**        | admin@collexo.com   | admin123   |
 
 ## 📁 Project Structure
 
@@ -267,6 +278,7 @@ For complete API testing, import `docs/postman.json` into Postman.
 The application automatically creates 4 tables:
 
 ### USERS
+
 - `user_id` (PK, AUTO_INCREMENT)
 - `user_name` (VARCHAR)
 - `user_email` (UNIQUE)
@@ -275,6 +287,7 @@ The application automatically creates 4 tables:
 - `created_at` (DATETIME)
 
 ### SOCIETIES
+
 - `society_id` (PK, AUTO_INCREMENT)
 - `society_name` (UNIQUE)
 - `tagline` (VARCHAR)
@@ -288,6 +301,7 @@ The application automatically creates 4 tables:
 - `created_at` (DATETIME)
 
 ### FORMS
+
 - `form_id` (PK, AUTO_INCREMENT)
 - `society_id` (FK → societies)
 - `title` (VARCHAR)
@@ -296,6 +310,7 @@ The application automatically creates 4 tables:
 - `published_at` (DATETIME)
 
 ### APPLICATIONS
+
 - `application_id` (PK, AUTO_INCREMENT)
 - `user_id` (FK → users)
 - `society_id` (FK → societies)
@@ -310,7 +325,8 @@ The application automatically creates 4 tables:
 
 #### Error: "Can't connect to MySQL server"
 
-**Solution**: 
+**Solution**:
+
 - Ensure XAMPP MySQL is running
 - Check that MySQL is on port 3306
 - Verify MySQL credentials in `backend/config/db.py`
@@ -318,6 +334,7 @@ The application automatically creates 4 tables:
 #### Error: "ModuleNotFoundError"
 
 **Solution**:
+
 ```powershell
 cd backend
 pip install -r requirements.txt
@@ -326,6 +343,7 @@ pip install -r requirements.txt
 #### Error: "Port 5000 already in use"
 
 **Solution**: Kill the process or change the port in `backend/app.py`:
+
 ```python
 app.run(debug=True, host='0.0.0.0', port=5001)
 ```
@@ -335,6 +353,7 @@ app.run(debug=True, host='0.0.0.0', port=5001)
 #### Error: "Cannot find module 'react'"
 
 **Solution**:
+
 ```powershell
 cd frontend
 Remove-Item -Recurse -Force node_modules
@@ -343,14 +362,16 @@ npm install
 
 #### Error: "Failed to fetch" or CORS errors
 
-**Solution**: 
+**Solution**:
+
 - Ensure backend is running on http://localhost:5000
 - Check browser console for specific error messages
 - Verify CORS is properly configured in `backend/app.py`
 
 #### Blank page after login
 
-**Solution**: 
+**Solution**:
+
 - Clear browser cache and local storage
 - Hard refresh (Ctrl+Shift+R)
 - Check browser console for errors
@@ -359,7 +380,8 @@ npm install
 
 #### Tables not created
 
-**Solution**: 
+**Solution**:
+
 - Restart the backend application
 - Check terminal output for database creation logs
 - Verify MySQL is running and accessible
@@ -369,12 +391,14 @@ npm install
 ### Manual Testing Flow
 
 1. **As Student**:
+
    - Register new account or login with `student@collexo.com`
    - Browse societies
    - View society details
    - Submit applications
 
 2. **As Society Head**:
+
    - Login with `john@collexo.com`
    - Create a new society (if not assigned)
    - Manage society profile
@@ -463,6 +487,7 @@ MIT License - feel free to use this project for learning or commercial purposes.
 ## 📞 Support
 
 For issues, questions, or contributions:
+
 - Open an issue on GitHub
 - Check existing documentation in `/docs`
 - Review troubleshooting section above
@@ -471,4 +496,4 @@ For issues, questions, or contributions:
 
 **Built with ❤️ using Flask, React, and MySQL**
 
-*Last Updated: November 2025*
+_Last Updated: November 2025_
