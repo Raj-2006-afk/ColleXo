@@ -1,0 +1,119 @@
+{% extends "base.html" %} {% block title %}Register - ColleXo{% endblock %} {%
+block content %}
+<div class="auth-container">
+	<div class="auth-card">
+		<h2>Register for ColleXo</h2>
+		<form id="registerForm">
+			<div class="form-group">
+				<label for="name">Full Name</label>
+				<input
+					type="text"
+					id="name"
+					name="name"
+					required
+					placeholder="John Doe"
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="email">Email</label>
+				<input
+					type="email"
+					id="email"
+					name="email"
+					required
+					placeholder="your.email@college.edu"
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input
+					type="password"
+					id="password"
+					name="password"
+					required
+					placeholder="At least 6 characters"
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="role">I am a:</label>
+				<select id="role" name="role" required>
+					<option value="student">Student</option>
+					<option value="societyHead">Society Head</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">Register</button>
+			</div>
+
+			<div class="form-footer">
+				<p>Already have an account? <a href="/login">Login here</a></p>
+			</div>
+		</form>
+
+		<div id="message" class="message" style="display: none"></div>
+	</div>
+</div>
+
+<script>
+	document
+		.getElementById("registerForm")
+		.addEventListener("submit", async (e) => {
+			e.preventDefault();
+
+			const name = document.getElementById("name").value;
+			const email = document.getElementById("email").value;
+			const password = document.getElementById("password").value;
+			const role = document.getElementById("role").value;
+			const messageDiv = document.getElementById("message");
+
+			try {
+				const response = await fetch("/api/auth/register", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						user_name: name,
+						user_email: email,
+						user_password: password,
+						user_role: role,
+					}),
+				});
+
+				const data = await response.json();
+
+				if (response.ok) {
+					// Store token and user info
+					localStorage.setItem("token", data.access_token);
+					localStorage.setItem("user", JSON.stringify(data.user));
+
+					// Show success message
+					messageDiv.textContent = "Registration successful! Redirecting...";
+					messageDiv.className = "message success";
+					messageDiv.style.display = "block";
+
+					// Redirect based on role
+					setTimeout(() => {
+						if (data.user.user_role === "societyHead") {
+							window.location.href = "/society/dashboard";
+						} else {
+							window.location.href = "/student/dashboard";
+						}
+					}, 1000);
+				} else {
+					messageDiv.textContent = data.error || "Registration failed";
+					messageDiv.className = "message error";
+					messageDiv.style.display = "block";
+				}
+			} catch (error) {
+				messageDiv.textContent = "Network error. Please try again.";
+				messageDiv.className = "message error";
+				messageDiv.style.display = "block";
+			}
+		});
+</script>
+{% endblock %}

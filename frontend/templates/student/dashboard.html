@@ -1,0 +1,173 @@
+{% extends "base.html" %} {% block title %}Student Dashboard - ColleXo{%
+endblock %} {% block content %}
+<div class="dashboard-container">
+	<div class="dashboard-header">
+		<h2>Student Dashboard</h2>
+		<p>Welcome, <span id="userName"></span>!</p>
+	</div>
+
+	<div class="dashboard-tabs">
+		<button class="tab-button active" onclick="showTab('societies')">
+			Browse Societies
+		</button>
+		<button class="tab-button" onclick="showTab('applications')">
+			My Applications
+		</button>
+	</div>
+
+	<!-- Browse Societies Tab -->
+	<div id="societies-tab" class="tab-content active">
+		<div class="section-header">
+			<h3>Available Societies</h3>
+			<input
+				type="text"
+				id="searchInput"
+				placeholder="Search societies..."
+				onkeyup="searchSocieties()"
+			/>
+		</div>
+		<div id="societiesList" class="societies-grid"></div>
+	</div>
+
+	<!-- My Applications Tab -->
+	<div id="applications-tab" class="tab-content" style="display: none">
+		<div class="section-header">
+			<h3>My Applications</h3>
+		</div>
+		<div id="applicationsList" class="applications-list"></div>
+	</div>
+</div>
+
+<script>
+	// Check authentication
+	const token = localStorage.getItem("token");
+	const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+	if (!token || user.user_role !== "student") {
+		window.location.href = "/login";
+	}
+
+	document.getElementById("userName").textContent = user.user_name;
+
+	// Tab switching
+	function showTab(tabName) {
+		const tabs = document.querySelectorAll(".tab-content");
+		const buttons = document.querySelectorAll(".tab-button");
+
+		tabs.forEach((tab) => (tab.style.display = "none"));
+		buttons.forEach((btn) => btn.classList.remove("active"));
+
+		document.getElementById(tabName + "-tab").style.display = "block";
+		event.target.classList.add("active");
+
+		if (tabName === "societies") {
+			loadSocieties();
+		} else if (tabName === "applications") {
+			loadApplications();
+		}
+	}
+
+	// Load societies
+	async function loadSocieties() {
+		try {
+			const response = await fetch("/api/societies/browse?per_page=20");
+			const data = await response.json();
+
+			const societiesList = document.getElementById("societiesList");
+			societiesList.innerHTML = "";
+
+			if (data.societies && data.societies.length > 0) {
+				data.societies.forEach((society) => {
+					const card = document.createElement("div");
+					card.className = "society-card";
+					card.innerHTML = `
+                    <h4>${society.society_name}</h4>
+                    <p class="tagline">${society.tagline || ""}</p>
+                    <p class="category">${society.category || "General"}</p>
+                    <p class="members">${society.member_count || 0} members</p>
+                    ${
+											society.admission_open
+												? '<span class="badge badge-success">Open for Applications</span>'
+												: '<span class="badge badge-danger">Applications Closed</span>'
+										}
+                    <button class="btn btn-sm btn-primary" onclick="viewSociety(${
+											society.society_id
+										})">View Details</button>
+                `;
+					societiesList.appendChild(card);
+				});
+			} else {
+				societiesList.innerHTML = "<p>No societies found.</p>";
+			}
+		} catch (error) {
+			console.error("Error loading societies:", error);
+		}
+	}
+
+	// Load applications
+	async function loadApplications() {
+		try {
+			const response = await fetch("/api/applications/my-applications", {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			const data = await response.json();
+
+			const applicationsList = document.getElementById("applicationsList");
+			applicationsList.innerHTML = "";
+
+			if (data.applications && data.applications.length > 0) {
+				data.applications.forEach((app) => {
+					const item = document.createElement("div");
+					item.className = "application-item";
+					item.innerHTML = `
+                    <div class="application-header">
+                        <h4>${app.society_name}</h4>
+                        <span class="badge badge-${getStatusClass(
+													app.status
+												)}">${app.status}</span>
+                    </div>
+                    <p>${app.form_title}</p>
+                    <p class="date">Applied: ${new Date(
+											app.submitted_at
+										).toLocaleDateString()}</p>
+                `;
+					applicationsList.appendChild(item);
+				});
+			} else {
+				applicationsList.innerHTML =
+					"<p>You haven't applied to any societies yet.</p>";
+			}
+		} catch (error) {
+			console.error("Error loading applications:", error);
+		}
+	}
+
+	function getStatusClass(status) {
+		switch (status) {
+			case "accepted":
+				return "success";
+			case "rejected":
+				return "danger";
+			case "shortlisted":
+				return "warning";
+			default:
+				return "secondary";
+		}
+	}
+
+	function searchSocieties() {
+		// Implement search functionality
+		loadSocieties();
+	}
+
+	function viewSociety(id) {
+		// Implement view society details
+		alert("Society details for ID: " + id);
+	}
+
+	// Load initial data
+	loadSocieties();
+</script>
+{% endblock %}

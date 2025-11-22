@@ -1,0 +1,293 @@
+{% extends "base.html" %} {% block title %}Society Dashboard - ColleXo{%
+endblock %} {% block content %}
+<div class="dashboard-container">
+	<div class="dashboard-header">
+		<h2>Society Head Dashboard</h2>
+		<p>Welcome, <span id="userName"></span>!</p>
+	</div>
+
+	<div class="dashboard-tabs">
+		<button class="tab-button active" onclick="showTab('overview')">
+			Overview
+		</button>
+		<button class="tab-button" onclick="showTab('forms')">Forms</button>
+		<button class="tab-button" onclick="showTab('applications')">
+			Applications
+		</button>
+		<button class="tab-button" onclick="showTab('settings')">Settings</button>
+	</div>
+
+	<!-- Overview Tab -->
+	<div id="overview-tab" class="tab-content active">
+		<div class="stats-grid">
+			<div class="stat-card">
+				<h3 id="totalMembers">0</h3>
+				<p>Total Members</p>
+			</div>
+			<div class="stat-card">
+				<h3 id="totalForms">0</h3>
+				<p>Active Forms</p>
+			</div>
+			<div class="stat-card">
+				<h3 id="totalApplications">0</h3>
+				<p>Total Applications</p>
+			</div>
+			<div class="stat-card">
+				<h3 id="pendingApplications">0</h3>
+				<p>Pending Review</p>
+			</div>
+		</div>
+
+		<div class="society-info" id="societyInfo"></div>
+	</div>
+
+	<!-- Forms Tab -->
+	<div id="forms-tab" class="tab-content" style="display: none">
+		<div class="section-header">
+			<h3>Recruitment Forms</h3>
+			<button class="btn btn-primary" onclick="createForm()">
+				Create New Form
+			</button>
+		</div>
+		<div id="formsList"></div>
+	</div>
+
+	<!-- Applications Tab -->
+	<div id="applications-tab" class="tab-content" style="display: none">
+		<div class="section-header">
+			<h3>Applications</h3>
+			<select id="statusFilter" onchange="filterApplications()">
+				<option value="">All Status</option>
+				<option value="pending">Pending</option>
+				<option value="shortlisted">Shortlisted</option>
+				<option value="accepted">Accepted</option>
+				<option value="rejected">Rejected</option>
+			</select>
+		</div>
+		<div id="applicationsList"></div>
+	</div>
+
+	<!-- Settings Tab -->
+	<div id="settings-tab" class="tab-content" style="display: none">
+		<h3>Society Settings</h3>
+		<div id="settingsForm"></div>
+	</div>
+</div>
+
+<script>
+	const token = localStorage.getItem("token");
+	const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+	if (!token || user.user_role !== "societyHead") {
+		window.location.href = "/login";
+	}
+
+	document.getElementById("userName").textContent = user.user_name;
+
+	let currentSociety = null;
+
+	// Tab switching
+	function showTab(tabName) {
+		const tabs = document.querySelectorAll(".tab-content");
+		const buttons = document.querySelectorAll(".tab-button");
+
+		tabs.forEach((tab) => (tab.style.display = "none"));
+		buttons.forEach((btn) => btn.classList.remove("active"));
+
+		document.getElementById(tabName + "-tab").style.display = "block";
+		event.target.classList.add("active");
+
+		if (tabName === "overview") loadOverview();
+		else if (tabName === "forms") loadForms();
+		else if (tabName === "applications") loadApplications();
+		else if (tabName === "settings") loadSettings();
+	}
+
+	async function loadOverview() {
+		try {
+			const response = await fetch("/api/societies/my-society", {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			const society = await response.json();
+			currentSociety = society;
+
+			document.getElementById("totalMembers").textContent =
+				society.member_count || 0;
+
+			// Load statistics
+			const statsResponse = await fetch(
+				`/api/applications/statistics/${society.society_id}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			);
+			const stats = await statsResponse.json();
+
+			document.getElementById("totalApplications").textContent =
+				stats.total || 0;
+			document.getElementById("pendingApplications").textContent =
+				stats.pending || 0;
+
+			// Display society info
+			document.getElementById("societyInfo").innerHTML = `
+            <h3>${society.society_name}</h3>
+            <p><strong>Category:</strong> ${society.category}</p>
+            <p><strong>Tagline:</strong> ${society.tagline}</p>
+            <p><strong>Description:</strong> ${society.description}</p>
+            <p><strong>Admission Status:</strong> ${
+							society.admission_open ? "Open" : "Closed"
+						}</p>
+        `;
+		} catch (error) {
+			console.error("Error loading overview:", error);
+		}
+	}
+
+	async function loadForms() {
+		if (!currentSociety) await loadOverview();
+
+		try {
+			const response = await fetch(
+				`/api/forms/society/${currentSociety.society_id}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			);
+			const data = await response.json();
+
+			const formsList = document.getElementById("formsList");
+			formsList.innerHTML = "";
+
+			if (data.forms && data.forms.length > 0) {
+				data.forms.forEach((form) => {
+					const item = document.createElement("div");
+					item.className = "form-item";
+					item.innerHTML = `
+                    <h4>${form.title}</h4>
+                    <span class="badge badge-${
+											form.status === "published" ? "success" : "secondary"
+										}">${form.status}</span>
+                    <p>Applications: ${form.application_count || 0}</p>
+                    <button class="btn btn-sm btn-primary" onclick="viewFormApplications(${
+											form.form_id
+										})">View Applications</button>
+                `;
+					formsList.appendChild(item);
+				});
+			} else {
+				formsList.innerHTML = "<p>No forms created yet.</p>";
+			}
+		} catch (error) {
+			console.error("Error loading forms:", error);
+		}
+	}
+
+	async function loadApplications() {
+		if (!currentSociety) await loadOverview();
+
+		const status = document.getElementById("statusFilter").value;
+		const url =
+			`/api/applications/society/${currentSociety.society_id}` +
+			(status ? `?status=${status}` : "");
+
+		try {
+			const response = await fetch(url, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			const data = await response.json();
+
+			const applicationsList = document.getElementById("applicationsList");
+			applicationsList.innerHTML = "";
+
+			if (data.applications && data.applications.length > 0) {
+				data.applications.forEach((app) => {
+					const item = document.createElement("div");
+					item.className = "application-item";
+					item.innerHTML = `
+                    <div class="application-header">
+                        <h4>${app.user_name} (${app.user_email})</h4>
+                        <span class="badge badge-${getStatusClass(
+													app.status
+												)}">${app.status}</span>
+                    </div>
+                    <p>Applied: ${new Date(
+											app.submitted_at
+										).toLocaleDateString()}</p>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-success" onclick="updateStatus(${
+													app.application_id
+												}, 'accepted')">Accept</button>
+                        <button class="btn btn-sm btn-warning" onclick="updateStatus(${
+													app.application_id
+												}, 'shortlisted')">Shortlist</button>
+                        <button class="btn btn-sm btn-danger" onclick="updateStatus(${
+													app.application_id
+												}, 'rejected')">Reject</button>
+                    </div>
+                `;
+					applicationsList.appendChild(item);
+				});
+			} else {
+				applicationsList.innerHTML = "<p>No applications found.</p>";
+			}
+		} catch (error) {
+			console.error("Error loading applications:", error);
+		}
+	}
+
+	async function updateStatus(applicationId, status) {
+		try {
+			const response = await fetch(
+				`/api/applications/${applicationId}/status`,
+				{
+					method: "PUT",
+					headers: {
+						Authorization: `Bearer ${token}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ status }),
+				}
+			);
+
+			if (response.ok) {
+				alert("Status updated successfully");
+				loadApplications();
+			}
+		} catch (error) {
+			console.error("Error updating status:", error);
+		}
+	}
+
+	function getStatusClass(status) {
+		switch (status) {
+			case "accepted":
+				return "success";
+			case "rejected":
+				return "danger";
+			case "shortlisted":
+				return "warning";
+			default:
+				return "secondary";
+		}
+	}
+
+	function filterApplications() {
+		loadApplications();
+	}
+
+	function createForm() {
+		alert("Form creation feature - coming soon!");
+	}
+
+	function viewFormApplications(formId) {
+		alert("View applications for form: " + formId);
+	}
+
+	function loadSettings() {
+		// Implement settings load
+	}
+
+	// Load initial data
+	loadOverview();
+</script>
+{% endblock %}
