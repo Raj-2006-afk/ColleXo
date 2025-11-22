@@ -56,67 +56,66 @@ const RegisterPage = () => {
 			<div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 				<div className="max-w-md w-full">
 					<div className="card">
-					<div className="text-center mb-8">
-						<h2 className="text-3xl font-bold text-gray-900 mb-2">
-							Create Account
-						</h2>
-						<p className="text-gray-600">Join ColleXo today</p>
-					</div>
-
-					{error && (
-						<div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-							{error}
-						</div>
-					)}
-
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">
-								Register As
-							</label>
-							<select
-								value={role}
-								onChange={(e) => setRole(e.target.value)}
-								className="input-field"
-								required
-							>
-								<option value="student">Student</option>
-								<option value="societyHead">Society Head / Team Lead</option>
-							</select>
+						<div className="text-center mb-8">
+							<h2 className="text-3xl font-bold text-gray-900 mb-2">
+								Create Account
+							</h2>
+							<p className="text-gray-600">Join ColleXo today</p>
 						</div>
 
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">
-								Full Name
-							</label>
-							<input
-								type="text"
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								className="input-field"
-								placeholder="John Doe"
-								required
-							/>
-						</div>
+						{error && (
+							<div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+								{error}
+							</div>
+						)}
 
-						{role === "societyHead" && (
+						<form onSubmit={handleSubmit} className="space-y-4">
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-2">
-									Society Name
+									Register As
+								</label>
+								<select
+									value={role}
+									onChange={(e) => setRole(e.target.value)}
+									className="input-field"
+									required
+								>
+									<option value="student">Student</option>
+									<option value="societyHead">Society Head / Team Lead</option>
+								</select>
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">
+									Full Name
 								</label>
 								<input
 									type="text"
-									value={societyName}
-									onChange={(e) => setSocietyName(e.target.value)}
+									value={name}
+									onChange={(e) => setName(e.target.value)}
 									className="input-field"
-									placeholder="Tech Club"
+									placeholder="John Doe"
 									required
 								/>
-								<p className="mt-1 text-xs text-gray-500">
-									You will be registered as the head of this society
-								</p>
 							</div>
-						)}							<div>
+							{role === "societyHead" && (
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-2">
+										Society Name
+									</label>
+									<input
+										type="text"
+										value={societyName}
+										onChange={(e) => setSocietyName(e.target.value)}
+										className="input-field"
+										placeholder="Tech Club"
+										required
+									/>
+									<p className="mt-1 text-xs text-gray-500">
+										You will be registered as the head of this society
+									</p>
+								</div>
+							)}{" "}
+							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-2">
 									Email Address
 								</label>
@@ -129,7 +128,6 @@ const RegisterPage = () => {
 									required
 								/>
 							</div>
-
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-2">
 									Password
@@ -143,7 +141,6 @@ const RegisterPage = () => {
 									required
 								/>
 							</div>
-
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-2">
 									Confirm Password
@@ -157,7 +154,6 @@ const RegisterPage = () => {
 									required
 								/>
 							</div>
-
 							<button
 								type="submit"
 								disabled={loading}

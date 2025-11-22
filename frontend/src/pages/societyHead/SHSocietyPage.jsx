@@ -12,7 +12,7 @@ const SHSocietyPage = () => {
 		tagline: "",
 		description: "",
 		category: "Technical",
-		admission_open: true
+		admission_open: true,
 	});
 
 	useEffect(() => {
@@ -196,8 +196,10 @@ const SHSocietyPage = () => {
 							</div>
 						) : (
 							<form onSubmit={handleCreate} className="space-y-4">
-								<h3 className="text-xl font-semibold mb-4">Create New Society</h3>
-								
+								<h3 className="text-xl font-semibold mb-4">
+									Create New Society
+								</h3>
+
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-2">
 										Society Name *

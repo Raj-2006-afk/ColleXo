@@ -36,7 +36,9 @@ const SHDashboard = () => {
 	};
 
 	// Debug: Check for errors
-	const debugErrors = JSON.parse(sessionStorage.getItem('debug_errors') || '[]');
+	const debugErrors = JSON.parse(
+		sessionStorage.getItem("debug_errors") || "[]"
+	);
 
 	return (
 		<DashboardLayout>
@@ -44,16 +46,18 @@ const SHDashboard = () => {
 				{debugErrors.length > 0 && (
 					<div className="mb-4 p-4 bg-red-100 border border-red-300 rounded">
 						<h3 className="font-bold text-red-800 mb-2">Debug Errors:</h3>
-						<pre className="text-xs overflow-auto">{JSON.stringify(debugErrors, null, 2)}</pre>
-						<button 
-							onClick={() => sessionStorage.removeItem('debug_errors')}
+						<pre className="text-xs overflow-auto">
+							{JSON.stringify(debugErrors, null, 2)}
+						</pre>
+						<button
+							onClick={() => sessionStorage.removeItem("debug_errors")}
 							className="mt-2 text-xs bg-red-600 text-white px-2 py-1 rounded"
 						>
 							Clear Errors
 						</button>
 					</div>
 				)}
-				
+
 				<h1 className="text-3xl font-bold text-gray-900 mb-8">
 					Society Overview
 				</h1>

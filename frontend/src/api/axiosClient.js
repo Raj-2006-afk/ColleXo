@@ -28,30 +28,42 @@ axiosClient.interceptors.response.use(
 			status: error.response?.status,
 			data: error.response?.data,
 			url: error.response?.config?.url,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		};
-		
-		console.error('🔴 API Error:', errorInfo);
-		
+
+		console.error("🔴 API Error:", errorInfo);
+
 		// Store in sessionStorage so it persists across redirects
-		const existingErrors = JSON.parse(sessionStorage.getItem('debug_errors') || '[]');
+		const existingErrors = JSON.parse(
+			sessionStorage.getItem("debug_errors") || "[]"
+		);
 		existingErrors.push(errorInfo);
-		sessionStorage.setItem('debug_errors', JSON.stringify(existingErrors.slice(-5))); // Keep last 5
-		
+		sessionStorage.setItem(
+			"debug_errors",
+			JSON.stringify(existingErrors.slice(-5))
+		); // Keep last 5
+
 		// Only logout on actual authentication/token failures (401)
 		if (error.response && error.response.status === 401) {
-			const errorMsg = error.response.data?.error?.toLowerCase() || '';
-			const errorMessage = error.response.data?.message?.toLowerCase() || '';
-			
-			const isTokenError = errorMsg.includes('token') || 
-								errorMsg.includes('authentication') ||
-								errorMsg.includes('unauthorized') ||
-								errorMessage.includes('token') ||
-								errorMessage.includes('jwt') ||
-								errorMessage.includes('expired');
-			
-			console.error('🔴 Would logout:', isTokenError, 'Error:', errorMsg, errorMessage);
-			
+			const errorMsg = error.response.data?.error?.toLowerCase() || "";
+			const errorMessage = error.response.data?.message?.toLowerCase() || "";
+
+			const isTokenError =
+				errorMsg.includes("token") ||
+				errorMsg.includes("authentication") ||
+				errorMsg.includes("unauthorized") ||
+				errorMessage.includes("token") ||
+				errorMessage.includes("jwt") ||
+				errorMessage.includes("expired");
+
+			console.error(
+				"🔴 Would logout:",
+				isTokenError,
+				"Error:",
+				errorMsg,
+				errorMessage
+			);
+
 			if (isTokenError) {
 				localStorage.removeItem("token");
 				localStorage.removeItem("user");
