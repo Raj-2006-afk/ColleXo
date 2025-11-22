@@ -49,9 +49,20 @@ Before you begin, ensure you have the following installed:
 - **Python 3.8+** - [Download Python](https://www.python.org/downloads/)
 - **Node.js 16+** and npm - [Download Node.js](https://nodejs.org/)
 - **XAMPP** (for MySQL) - [Download XAMPP](https://www.apachefriends.org/)
-- **Git** (optional) - [Download Git](https://git-scm.com/)
+- **Git** - [Download Git](https://git-scm.com/)
 
 ## 🚀 Installation & Setup
+
+### Step 0: Clone the Repository
+
+First, clone the repository to your local machine:
+
+```bash
+git clone https://github.com/Raj-2006-afk/ColleXo.git
+cd ColleXo
+```
+
+Or download the ZIP file from GitHub and extract it.
 
 ### Step 1: Start MySQL Database
 
