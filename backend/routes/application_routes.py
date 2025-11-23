@@ -7,13 +7,14 @@ from middleware.auth import jwt_required_custom, role_required
 
 application_bp = Blueprint('application', __name__)
 
-@application_bp.route('/', methods=['POST'])
+@application_bp.route('/', methods=['POST'], strict_slashes=False)
+@application_bp.route('', methods=['POST'], strict_slashes=False)
 @role_required('student')
 def create_application():
     """Submit an application (students only)"""
     try:
         data = request.get_json()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Validate required fields
         if not data.get('form_id'):
@@ -27,7 +28,9 @@ def create_application():
         if form['status'] != 'published':
             return jsonify({'error': 'Form is not published'}), 400
         
-        application = Application.create(user_id, form['society_id'], data['form_id'])
+        # Create application with responses
+        responses = data.get('responses', {})
+        application = Application.create(user_id, form['society_id'], data['form_id'], responses)
         
         if not application:
             return jsonify({'error': 'Failed to create application'}), 500
@@ -48,7 +51,7 @@ def create_application():
 def get_my_applications():
     """Get all applications by current user"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
@@ -72,7 +75,7 @@ def get_my_applications():
 def get_society_applications(society_id):
     """Get all applications for a society"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)
         status = request.args.get('status', None)
@@ -145,7 +148,7 @@ def get_form_applications(form_id):
 def get_application(application_id):
     """Get application details"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         application = Application.get_by_id(application_id)
         if not application:
@@ -175,7 +178,7 @@ def get_application(application_id):
 def update_application_status(application_id):
     """Update application status"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         if not data.get('status'):
@@ -212,7 +215,7 @@ def update_application_status(application_id):
 def get_application_statistics(society_id):
     """Get application statistics for a society"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Verify ownership or admin
         from models.user import User

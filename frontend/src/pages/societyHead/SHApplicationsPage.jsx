@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import StatusPill from "../../components/StatusPill";
+import ApplicationDetailModal from "../../components/ApplicationDetailModal";
 import axiosClient from "../../api/axiosClient";
 
 const SHApplicationsPage = () => {
@@ -8,6 +9,7 @@ const SHApplicationsPage = () => {
 	const [society, setSociety] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("");
+	const [selectedAppId, setSelectedAppId] = useState(null);
 
 	useEffect(() => {
 		fetchData();
@@ -101,33 +103,33 @@ const SHApplicationsPage = () => {
 										Status
 									</th>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+										Submitted
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
 										Actions
 									</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y">
 								{applications.map((app) => (
-									<tr key={app.application_id}>
-										<td className="px-6 py-4">{app.user_name}</td>
+									<tr key={app.application_id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 font-medium">{app.user_name}</td>
 										<td className="px-6 py-4 text-sm text-gray-600">
 											{app.user_email}
 										</td>
 										<td className="px-6 py-4">
 											<StatusPill status={app.status} />
 										</td>
+										<td className="px-6 py-4 text-sm text-gray-600">
+											{new Date(app.submitted_at).toLocaleDateString()}
+										</td>
 										<td className="px-6 py-4">
-											<select
-												value={app.status}
-												onChange={(e) =>
-													updateStatus(app.application_id, e.target.value)
-												}
-												className="text-sm border border-gray-300 rounded px-2 py-1"
+											<button
+												onClick={() => setSelectedAppId(app.application_id)}
+												className="text-primary-600 hover:text-primary-700 font-medium text-sm"
 											>
-												<option value="pending">Pending</option>
-												<option value="shortlisted">Shortlisted</option>
-												<option value="accepted">Accepted</option>
-												<option value="rejected">Rejected</option>
-											</select>
+												View Details
+											</button>
 										</td>
 									</tr>
 								))}
@@ -138,6 +140,15 @@ const SHApplicationsPage = () => {
 					<div className="card text-center text-gray-500 py-12">
 						No applications found
 					</div>
+				)}
+
+				{/* Application Detail Modal */}
+				{selectedAppId && (
+					<ApplicationDetailModal
+						applicationId={selectedAppId}
+						onClose={() => setSelectedAppId(null)}
+						onStatusUpdate={fetchData}
+					/>
 				)}
 			</div>
 		</DashboardLayout>

@@ -42,13 +42,14 @@ def get_form(form_id):
     except Exception as e:
         return jsonify({'error': 'Failed to fetch form', 'message': str(e)}), 500
 
-@form_bp.route('/', methods=['POST'])
+@form_bp.route('/', methods=['POST'], strict_slashes=False)
+@form_bp.route('', methods=['POST'], strict_slashes=False)
 @role_required('societyHead')
 def create_form():
     """Create a new form (society head only)"""
     try:
         data = request.get_json()
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Validate required fields
         if not data.get('title'):
@@ -81,7 +82,7 @@ def create_form():
 def get_society_forms(society_id):
     """Get all forms for a society"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Verify ownership or admin
         from models.user import User
@@ -106,7 +107,7 @@ def get_society_forms(society_id):
 def update_form(form_id):
     """Update form details"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         # Verify ownership
@@ -138,7 +139,7 @@ def update_form(form_id):
 def delete_form(form_id):
     """Delete a form"""
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Verify ownership
         form = Form.get_by_id(form_id)

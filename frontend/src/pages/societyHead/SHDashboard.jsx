@@ -7,6 +7,8 @@ const SHDashboard = () => {
 	const [society, setSociety] = useState(null);
 	const [stats, setStats] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [editingMembers, setEditingMembers] = useState(false);
+	const [memberCount, setMemberCount] = useState(0);
 
 	useEffect(() => {
 		fetchData();
@@ -18,10 +20,10 @@ const SHDashboard = () => {
 			setSociety(societyRes.data.society);
 
 			if (societyRes.data.society) {
-				const appsRes = await axiosClient.get(
-					`/applications/society/${societyRes.data.society.society_id}`
+				const statsRes = await axiosClient.get(
+					`/applications/statistics/${societyRes.data.society.society_id}`
 				);
-				setStats(appsRes.data.statistics);
+				setStats(statsRes.data);
 			}
 		} catch (error) {
 			if (error.response && error.response.status === 404) {
@@ -32,6 +34,18 @@ const SHDashboard = () => {
 			}
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const updateMemberCount = async () => {
+		try {
+			await axiosClient.put(`/societies/${society.society_id}`, {
+				member_count: memberCount,
+			});
+			setEditingMembers(false);
+			fetchData();
+		} catch (error) {
+			alert("Failed to update member count");
 		}
 	};
 
@@ -96,21 +110,66 @@ const SHDashboard = () => {
 						</div>
 
 						<div className="card">
-							<h2 className="text-xl font-semibold mb-4">
-								{society.society_name}
-							</h2>
-							<p className="text-gray-600 mb-4">{society.description}</p>
-							<div className="flex items-center space-x-4 text-sm text-gray-600">
-								<span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full">
-									{society.category}
-								</span>
-								<span>{society.member_count} members</span>
-								{society.admission_open && (
-									<span className="px-3 py-1 bg-green-100 text-green-700 rounded-full">
-										Accepting Applications
-									</span>
+							<div className="flex justify-between items-start mb-4">
+								<h2 className="text-xl font-semibold">
+									{society.society_name}
+								</h2>
+								{!editingMembers && (
+									<button
+										onClick={() => {
+											setMemberCount(society.member_count || 0);
+											setEditingMembers(true);
+										}}
+										className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+									>
+										Update Members
+									</button>
 								)}
 							</div>
+							<p className="text-gray-600 mb-4">{society.description}</p>
+
+							{editingMembers ? (
+								<div className="flex items-center space-x-3 mb-4">
+									<label className="text-sm font-medium text-gray-700">
+										Member Count:
+									</label>
+									<input
+										type="number"
+										min="0"
+										value={memberCount}
+										onChange={(e) =>
+											setMemberCount(parseInt(e.target.value) || 0)
+										}
+										className="w-24 px-3 py-1 border border-gray-300 rounded"
+									/>
+									<button
+										onClick={updateMemberCount}
+										className="px-4 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 text-sm"
+									>
+										Save
+									</button>
+									<button
+										onClick={() => setEditingMembers(false)}
+										className="px-4 py-1 border border-gray-300 rounded hover:bg-gray-50 text-sm"
+									>
+										Cancel
+									</button>
+								</div>
+							) : (
+								<div className="flex items-center space-x-4 text-sm text-gray-600">
+									<span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full">
+										{society.category}
+									</span>
+									<span className="font-medium">
+										{society.member_count} members
+									</span>
+									{society.admission_open && (
+										<span className="px-3 py-1 bg-green-100 text-green-700 rounded-full">
+											Accepting Applications
+										</span>
+									)}
+								</div>
+							)}
 						</div>
 					</>
 				) : (

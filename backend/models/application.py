@@ -4,8 +4,8 @@ from datetime import date
 
 class Application:
     @staticmethod
-    def create(user_id, society_id, form_id):
-        """Create a new application"""
+    def create(user_id, society_id, form_id, responses=None):
+        """Create a new application with responses"""
         connection = get_connection()
         if not connection:
             return None
@@ -27,11 +27,21 @@ class Application:
                 VALUES (%s, %s, %s, %s)
             """, (user_id, society_id, form_id, date.today()))
             
-            connection.commit()
             application_id = cursor.lastrowid
+            
+            # Insert responses if provided
+            if responses:
+                for question_id, response_text in responses.items():
+                    cursor.execute("""
+                        INSERT INTO application_responses (application_id, question_id, response_text)
+                        VALUES (%s, %s, %s)
+                    """, (application_id, int(question_id), response_text))
+            
+            connection.commit()
             return Application.get_by_id(application_id)
         except Error as e:
             print(f"Error creating application: {e}")
+            connection.rollback()
             return None
         finally:
             cursor.close()
@@ -39,7 +49,7 @@ class Application:
     
     @staticmethod
     def get_by_id(application_id):
-        """Get application by ID with full details"""
+        """Get application by ID with full details and responses"""
         connection = get_connection()
         if not connection:
             return None
@@ -58,6 +68,18 @@ class Application:
                 WHERE a.application_id = %s
             """, (application_id,))
             application = cursor.fetchone()
+            
+            if application:
+                # Get responses for this application
+                cursor.execute("""
+                    SELECT ar.*, fq.question_text, fq.question_type
+                    FROM application_responses ar
+                    JOIN form_questions fq ON ar.question_id = fq.question_id
+                    WHERE ar.application_id = %s
+                    ORDER BY fq.order_index, fq.question_id
+                """, (application_id,))
+                application['responses'] = cursor.fetchall()
+            
             return application
         except Error as e:
             print(f"Error fetching application: {e}")

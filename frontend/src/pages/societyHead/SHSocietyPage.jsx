@@ -148,6 +148,24 @@ const SHSocietyPage = () => {
 								</div>
 								<div>
 									<label className="block text-sm font-medium text-gray-700 mb-2">
+										Member Count
+									</label>
+									<input
+										type="number"
+										min="0"
+										value={formData.member_count || 0}
+										onChange={(e) =>
+											setFormData({
+												...formData,
+												member_count: parseInt(e.target.value) || 0,
+											})
+										}
+										className="input-field"
+										placeholder="Current number of members"
+									/>
+								</div>
+								<div>
+									<label className="block text-sm font-medium text-gray-700 mb-2">
 										<input
 											type="checkbox"
 											checked={formData.admission_open || false}

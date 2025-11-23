@@ -15,7 +15,7 @@ const SocietyListPage = () => {
 	const fetchSocieties = async () => {
 		try {
 			const params = category ? `?category=${category}` : "";
-			const response = await axiosClient.get(`/societies${params}`);
+			const response = await axiosClient.get(`/societies/browse${params}`);
 			setSocieties(response.data.societies || []);
 		} catch (error) {
 			console.error("Error fetching societies:", error);
@@ -55,6 +55,14 @@ const SocietyListPage = () => {
 							}`}
 						>
 							Cultural
+						</button>
+						<button
+							onClick={() => setCategory("Sports")}
+							className={`px-4 py-2 rounded-lg ${
+								category === "Sports" ? "btn-primary" : "btn-secondary"
+							}`}
+						>
+							Sports
 						</button>
 					</div>
 				</div>

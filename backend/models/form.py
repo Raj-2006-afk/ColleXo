@@ -31,7 +31,7 @@ class Form:
     
     @staticmethod
     def get_by_id(form_id):
-        """Get form by ID with society details"""
+        """Get form by ID with society details and questions"""
         connection = get_connection()
         if not connection:
             return None
@@ -39,12 +39,22 @@ class Form:
         cursor = connection.cursor(dictionary=True)
         try:
             cursor.execute("""
-                SELECT f.*, s.society_name, s.category
+                SELECT f.*, s.society_name, s.category, s.logo_url
                 FROM forms f
                 JOIN societies s ON f.society_id = s.society_id
                 WHERE f.form_id = %s
             """, (form_id,))
             form = cursor.fetchone()
+            
+            if form:
+                # Get questions for this form
+                cursor.execute("""
+                    SELECT * FROM form_questions
+                    WHERE form_id = %s
+                    ORDER BY order_index, question_id
+                """, (form_id,))
+                form['questions'] = cursor.fetchall()
+            
             return form
         except Error as e:
             print(f"Error fetching form: {e}")

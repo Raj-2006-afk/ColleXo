@@ -8,6 +8,8 @@ import RegisterPage from "../pages/RegisterPage";
 import StudentDashboard from "../pages/student/StudentDashboard";
 import SocietyListPage from "../pages/student/SocietyListPage";
 import MyApplicationsPage from "../pages/student/MyApplicationsPage";
+import FormSubmissionPage from "../pages/student/FormSubmissionPage";
+import RecruitmentFormsPage from "../pages/student/RecruitmentFormsPage";
 
 import SHDashboard from "../pages/societyHead/SHDashboard";
 import SHSocietyPage from "../pages/societyHead/SHSocietyPage";
@@ -85,6 +87,22 @@ const AppRouter = () => {
 				element={
 					<ProtectedRoute allowedRoles={["student"]}>
 						<MyApplicationsPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/student/forms"
+				element={
+					<ProtectedRoute allowedRoles={["student"]}>
+						<RecruitmentFormsPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/student/form/:formId"
+				element={
+					<ProtectedRoute allowedRoles={["student"]}>
+						<FormSubmissionPage />
 					</ProtectedRoute>
 				}
 			/>
